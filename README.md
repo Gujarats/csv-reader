@@ -4,7 +4,7 @@ This will read all the csv files on the dir "files"  and will shows the same val
 How to run this :
 
 ```shell
-$ git clone https://github.com/Gujarats/csc-reader
+$ git clone https://github.com/Gujarats/csv-reader
 $ go build
 $ ./csv-reader column Column
 ```

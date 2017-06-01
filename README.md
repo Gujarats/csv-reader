@@ -6,7 +6,7 @@ How to run this :
 ```shell
 $ git clone https://github.com/Gujarats/csc-reader
 $ go build
-$ ./csc-reader column Column
+$ ./csv-reader column Column
 ```
 give your column name on the last command above example gice Column to search the column named "Column"
 

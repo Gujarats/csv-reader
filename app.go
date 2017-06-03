@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -29,6 +30,7 @@ func main() {
 	app.Usage = "To check csv files"
 	app.Version = "1.0.0"
 
+	// flags for option command
 	var fileLocation string
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -47,13 +49,19 @@ func main() {
 			Aliases: []string{"c"},
 			Usage:   "Show load result",
 			Action: func(c *cli.Context) error {
-				inputColumn := c.Args().Get(0)
-				if inputColumn == "" {
+				input := c.Args().Get(0)
+				columns := strings.Split(input, ",")
+
+				if len(input) > 1 {
+					csvReaders(columns, fileLocation)
+				} else if len(input) == 1 {
+					csvReader(columns[0], fileLocation)
+
+				} else {
 					fmt.Println("Please input one column name")
 					return nil
-				}
 
-				csvReader(inputColumn, fileLocation)
+				}
 
 				return nil
 			},
@@ -62,6 +70,13 @@ func main() {
 
 	app.Run(os.Args)
 
+}
+
+func csvReaders(inputColumns []string, fileLocation string) {
+	for _, column := range inputColumns {
+		fmt.Printf("Finding values on column = %v\n", column)
+		csvReader(column, fileLocation)
+	}
 }
 
 func csvReader(inputColumn, fileLocation string) {

@@ -28,6 +28,17 @@ func main() {
 	app.Name = "MyCli"
 	app.Usage = "To check csv files"
 	app.Version = "1.0.0"
+
+	var fileLocation string
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:        "file",
+			Value:       "files/",
+			Usage:       "specify files location",
+			Destination: &fileLocation,
+		},
+	}
+
 	app.Commands = []cli.Command{
 
 		//first command load column data
@@ -42,7 +53,7 @@ func main() {
 					return nil
 				}
 
-				csvReader(inputColumn)
+				csvReader(inputColumn, fileLocation)
 
 				return nil
 			},
@@ -53,11 +64,11 @@ func main() {
 
 }
 
-func csvReader(inputColumn string) {
+func csvReader(inputColumn, fileLocation string) {
 	startTime := time.Now()
 
 	// get all the files from the specific folder
-	files, err := ioutil.ReadDir(dir)
+	files, err := ioutil.ReadDir(fileLocation)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -102,37 +113,9 @@ func csvReader(inputColumn string) {
 	close(results)
 	close(noColumn)
 
-	// receive results and determine which size datas is the smallest
-	var datas = make([]map[string]bool, len(results))
-	minIndex := -1
-	minSize := int(MaxUint >> 1)
-	i := 0
-	for values := range results {
-		sizeValues := len(values)
-		if sizeValues < minSize && sizeValues > 0 {
-			minSize = sizeValues
-			minIndex = i
-		}
-		datas[i] = values
-		i++
-	}
+	//receive results and determine which size datas is the smallest
+	theSameValue := getSameValues(&results)
 
-	// getting the same value from all the datas
-	var theSameValue []string
-	for value, _ := range datas[minIndex] {
-		isExistAll := false
-		for _, data := range datas {
-			if data[value] {
-				isExistAll = true
-			} else {
-				isExistAll = false
-			}
-		}
-
-		if isExistAll {
-			theSameValue = append(theSameValue, value)
-		}
-	}
 	fmt.Printf("final result = %+v\n", theSameValue)
 	fmt.Printf("final result size = %+v\n", len(theSameValue))
 	fmt.Printf("time consume = %+v\n", time.Since(startTime).Seconds())
@@ -183,4 +166,40 @@ func readFile(inputColumn string, f *os.File) (map[string]bool, bool) {
 
 	return datas, isColumnExist
 
+}
+
+// getting the same value from all the datas
+func getSameValues(results *chan map[string]bool) []string {
+	var datas = make([]map[string]bool, len(*results))
+	minIndex := -1
+	minSize := int(MaxUint >> 1)
+	i := 0
+	for values := range *results {
+		sizeValues := len(values)
+		if sizeValues < minSize && sizeValues > 0 {
+			minSize = sizeValues
+			minIndex = i
+		}
+		datas[i] = values
+		i++
+	}
+
+	// getting the same value from all the datas
+	var theSameValue []string
+	for value, _ := range datas[minIndex] {
+		isExistAll := false
+		for _, data := range datas {
+			if data[value] {
+				isExistAll = true
+			} else {
+				isExistAll = false
+			}
+		}
+
+		if isExistAll {
+			theSameValue = append(theSameValue, value)
+		}
+	}
+
+	return theSameValue
 }

@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"strings"
 	"sync"
 	"time"
@@ -97,7 +98,7 @@ func csvReader(inputColumn, fileLocation string) {
 		// and read it concurrently to get the data from specific column
 		go func(file os.FileInfo) {
 			defer wg.Done()
-			f, err := os.Open(dir + file.Name())
+			f, err := os.Open(path.Join(dir, file.Name()))
 			if err != nil {
 				log.Fatal(err)
 			}

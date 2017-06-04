@@ -129,7 +129,7 @@ func csvReader(inputColumn, fileLocation string) {
 	close(noColumn)
 
 	//receive results and determine which size datas is the smallest
-	theSameValue := getSameValues(&results)
+	theSameValue := getSameValues(results)
 
 	fmt.Printf("final result = %+v\n", theSameValue)
 	fmt.Printf("final result size = %+v\n", len(theSameValue))
@@ -172,7 +172,7 @@ func readFile(inputColumn string, f *os.File) (map[string]bool, bool) {
 			if columnIndex >= 0 {
 				datas[records[columnIndex]] = true
 			} else {
-				break // we didn't finf the column name; exit loop
+				break // we didn't find the column name, exit loop.
 			}
 
 		}
@@ -184,12 +184,12 @@ func readFile(inputColumn string, f *os.File) (map[string]bool, bool) {
 }
 
 // getting the same value from all the datas
-func getSameValues(results *chan map[string]bool) []string {
-	var datas = make([]map[string]bool, len(*results))
+func getSameValues(results chan map[string]bool) []string {
+	var datas = make([]map[string]bool, len(results))
 	minIndex := -1
 	minSize := int(MaxUint >> 1)
 	i := 0
-	for values := range *results {
+	for values := range results {
 		sizeValues := len(values)
 		if sizeValues < minSize && sizeValues > 0 {
 			minSize = sizeValues
@@ -204,11 +204,7 @@ func getSameValues(results *chan map[string]bool) []string {
 	for value, _ := range datas[minIndex] {
 		isExistAll := false
 		for _, data := range datas {
-			if data[value] {
-				isExistAll = true
-			} else {
-				isExistAll = false
-			}
+			isExistAll = data[value]
 		}
 
 		if isExistAll {

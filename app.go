@@ -203,9 +203,10 @@ func getSameValues(results chan map[string]bool) []string {
 	// getting the same value from all the datas
 	var theSameValue []string
 	for value, _ := range datas[minIndex] {
-		isExistAll := false
+		// check if all value is exist
+		isExistAll := true
 		for _, data := range datas {
-			isExistAll = data[value]
+			isExistAll = isExistAll && data[value]
 		}
 
 		if isExistAll {

@@ -170,34 +170,28 @@ func readFile(inputColumn string, f *os.File) (map[string]bool, bool) {
 			log.Fatal(err)
 		}
 
-		datas, isColumnExist, columnIndex = readRecords(records, columnIndex, inputColumn)
+		readRecords(records, datas, inputColumn, &columnIndex, &isColumnExist)
 	}
 
 	return datas, isColumnExist
 }
 
-func readRecords(records []string, columnIndex int, inputColumn string) (map[string]bool, bool, int) {
+func readRecords(records []string, datas map[string]bool, inputColumn string, columnIndex *int, isColumnExist *bool) {
 
-	isColumnExist := false
-	datas := make(map[string]bool)
 	if len(records) > 0 {
 		//find index column
-		if columnIndex == -1 {
+		if *columnIndex == -1 {
 			for index, record := range records {
 				if record == inputColumn {
-
-					isColumnExist = true
-					columnIndex = index
-					break
+					*isColumnExist = true
+					*columnIndex = index
 				}
 			}
 
-		} else if columnIndex >= 0 {
-			datas[records[columnIndex]] = true
+		} else if *columnIndex >= 0 {
+			datas[records[*columnIndex]] = true
 		}
 	}
-
-	return datas, isColumnExist, columnIndex
 }
 
 // getting the same value from all the datas

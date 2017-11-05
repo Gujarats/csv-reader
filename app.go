@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -64,6 +65,22 @@ func main() {
 
 				}
 
+				return nil
+			},
+		},
+
+		// second command to print current directory
+		{
+			Name:    "dir",
+			Aliases: []string{"d"},
+			Usage:   "Print current directory",
+			Action: func(c *cli.Context) error {
+				// test2
+				dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(dir)
 				return nil
 			},
 		},
@@ -141,9 +158,9 @@ func csvReader(inputColumn, fileLocation string) {
 func readFile(inputColumn string, f *os.File) (map[string]bool, bool) {
 	r := csv.NewReader(bufio.NewReader(f))
 
+	isColumnExist := false
 	columnIndex := -1
 	datas := make(map[string]bool)
-	isColumnExist := false
 	for {
 		records, err := r.Read()
 		if err == io.EOF {
@@ -153,35 +170,34 @@ func readFile(inputColumn string, f *os.File) (map[string]bool, bool) {
 			log.Fatal(err)
 		}
 
-		if len(records) > 0 {
-			//find index column
-			if columnIndex == -1 {
-				for index, record := range records {
-					if record == inputColumn {
-
-						isColumnExist = true
-						columnIndex = index
-						break
-					}
-				}
-
-				// avoid inserting the index column
-				continue
-			}
-
-			// get all the values from the column index to ourmap
-			if columnIndex >= 0 {
-				datas[records[columnIndex]] = true
-			} else {
-				break // we didn't find the column name, exit loop.
-			}
-
-		}
-
+		datas, isColumnExist, columnIndex = readRecords(records, columnIndex, inputColumn)
 	}
 
 	return datas, isColumnExist
+}
 
+func readRecords(records []string, columnIndex int, inputColumn string) (map[string]bool, bool, int) {
+
+	isColumnExist := false
+	datas := make(map[string]bool)
+	if len(records) > 0 {
+		//find index column
+		if columnIndex == -1 {
+			for index, record := range records {
+				if record == inputColumn {
+
+					isColumnExist = true
+					columnIndex = index
+					break
+				}
+			}
+
+		} else if columnIndex >= 0 {
+			datas[records[columnIndex]] = true
+		}
+	}
+
+	return datas, isColumnExist, columnIndex
 }
 
 // getting the same value from all the datas

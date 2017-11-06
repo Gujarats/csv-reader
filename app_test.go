@@ -4,6 +4,48 @@ import (
 	"testing"
 )
 
+func TestReadRecordsNegativeIndexColumn(t *testing.T) {
+	records := []string{"test1", "test2", "test3"}
+	columnIndex := -1
+	inputColumn := "test1"
+	isColumnExist := false
+	datas := make(map[string]bool)
+
+	readRecords(records, datas, inputColumn, &columnIndex, &isColumnExist)
+
+	if columnIndex == -1 {
+		t.Errorf("Column index must not be %+v\n", columnIndex)
+	}
+
+	if !isColumnExist {
+		t.Errorf("Column must exist")
+	}
+
+}
+
+func TestReadRecordsPositiveIndexColumn(t *testing.T) {
+	records := []string{"data1", "data2", "data3"}
+	columnIndex := 1
+	inputColumn := "test2"
+	isColumnExist := true
+	datas := make(map[string]bool)
+
+	readRecords(records, datas, inputColumn, &columnIndex, &isColumnExist)
+
+	if datas == nil {
+		t.Errorf("Datas must not be nil")
+	}
+
+	if columnIndex != 1 {
+		t.Errorf("Column index actual %+v, expected %+v\n", columnIndex, 1)
+	}
+
+	if !isColumnExist {
+		t.Errorf("Column must alwasy true ")
+	}
+
+}
+
 func TestInsertChan1(t *testing.T) {
 	myChan := make(chan map[string]bool, 3)
 

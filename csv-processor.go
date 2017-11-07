@@ -41,9 +41,9 @@ func csvReader(inputColumn, fileLocation string) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			datas, ok := readFile(inputColumn, f)
+			datas, columnExist := readFile(inputColumn, f)
 
-			if !ok {
+			if !columnExist {
 				noColumn <- struct{}{}
 				return
 			}
